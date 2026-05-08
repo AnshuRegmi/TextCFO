@@ -108,3 +108,52 @@ class TallyMCPClient:
             args_str = ", ".join(args) if args else "none"
             lines.append(f"  - {t.name}({args_str}): {t.description}")
         return "\n".join(lines)
+
+
+# Lines 115-?: handle_query() - Main query processing function
+async def handle_query(mcp_client, user_id, query, conversation_history):
+    """
+    Process a user query by:
+    1. Maintaining conversation history
+    2. Building context for the LLM
+    3. Calling tools via MCP
+    4. Returning formatted response
+    """
+    # Initialize user conversation if needed
+    if user_id not in conversation_history:
+        conversation_history[user_id] = []
+    
+    # Add user query to history
+    conversation_history[user_id].append({"role": "user", "content": query})
+    
+    # Build system prompt with available tools
+    system_prompt = f"""You are a financial BI assistant for Tally accounting software.
+You have access to these tools:
+{mcp_client.get_tool_descriptions() if mcp_client else "No tools available"}
+
+For each user question:
+1. Understand what data they need
+2. Decide which tool(s) to call
+3. Format the response professionally
+
+Keep responses concise and clear."""
+
+    # Format conversation history for LLM
+    messages = [
+        {"role": msg.get("role", "user"), "content": msg.get("content", "")}
+        for msg in conversation_history[user_id][-10:]  # Keep last 10 messages
+    ]
+    
+    try:
+        # Call LLM to get response
+        response_text = f"Processed query: {query[:50]}..."
+        
+        # For now, return a simple response (would call LLM in full implementation)
+        conversation_history[user_id].append({"role": "assistant", "content": response_text})
+        
+        return response_text
+    except Exception as e:
+        error_msg = f"Error processing query: {str(e)}"
+        conversation_history[user_id].append({"role": "assistant", "content": error_msg})
+        raise
+        return "\n".join(lines)
