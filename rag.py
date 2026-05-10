@@ -69,7 +69,7 @@ def sync_ledgers(ledgers: list[dict]):
         })
 
     collection.upsert(ids=ids, documents=documents, metadatas=metadatas)
-    print(f"✅ Embedded {len(ledgers)} ledger names into vector DB")
+    print(f"[OK] Embedded {len(ledgers)} ledger names into vector DB")
     return len(ledgers)
 
 def sync_business_rules(rules: list[dict] = None):
@@ -92,7 +92,7 @@ def sync_business_rules(rules: list[dict] = None):
         ids=[r["id"] for r in rules],
         documents=[r["text"] for r in rules],
     )
-    print(f"✅ Embedded {len(rules)} business rules into vector DB")
+    print(f"[OK] Embedded {len(rules)} business rules into vector DB")
     return len(rules)
 
 DEFAULT_BUSINESS_RULES = [
