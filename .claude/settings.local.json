@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(git config *)",
+      "Bash(git commit --amend -m ' *)",
+      "Bash(git commit *)",
+      "Bash(python -c \"import chromadb; print\\('chromadb OK'\\); from chromadb.utils import embedding_functions; print\\('embedding_functions OK'\\)\")",
+      "Bash(git pull *)",
+      "Bash(pip list *)",
+      "Bash(pip install *)",
+      "Bash(python test_rag.py)"
+    ]
+  }
+}
