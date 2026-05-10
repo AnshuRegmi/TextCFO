@@ -269,6 +269,72 @@ def get_trial_balance() -> str:
     return _live_or_cache("trial_balance", fetch, format)
 
 
+# Lines 430-447: get_profit_and_loss Tool
+@mcp.tool()
+def get_profit_and_loss() -> str:
+    """Get P&L: sales, costs, expenses, net profit."""
+
+    def fetch():
+        return tally_report("Profit and Loss")
+
+    def format(raw):
+        rows = _parse_display_report(raw, "pnl")
+        if not rows:
+            return "Empty P&L."
+        lines = []
+        for r in rows:
+            amt = r["amount"] if r["amount"] != "0" else "-"
+            lines.append(f"{r['name']}: {amt}")
+        return "\n".join(lines)
+
+    return _live_or_cache("pnl", fetch, format)
+
+# Lines 450-467: get_balance_sheet Tool
+@mcp.tool()
+def get_balance_sheet() -> str:
+    """Get Balance Sheet: capital, loans, liabilities, assets."""
+
+    def fetch():
+        return tally_report("Balance Sheet")
+
+    def format(raw):
+        rows = _parse_display_report(raw, "balance_sheet")
+        if not rows:
+            return "Empty balance sheet."
+        lines = []
+        for r in rows:
+            amt = r["amount"] if r["amount"] != "0" else "-"
+            lines.append(f"{r['name']}: {amt}")
+        return "\n".join(lines)
+
+    return _live_or_cache("balance_sheet", fetch, format)
+
+# Lines 470-492: get_sundry_debtors Tool
+@mcp.tool()
+def get_sundry_debtors() -> str:
+    """Get customers who owe us money (Sundry Debtors), sorted by amount."""
+
+    def fetch():
+        return tally_collection("Ledger")
+
+    def format(raw):
+        ledgers = _parse_ledgers(raw)
+        debtors = [l for l in ledgers if l["group"] == "Sundry Debtors"]
+        if not debtors:
+            return "No sundry debtors found."
+        debtors.sort(key=lambda d: abs(d["balance"]), reverse=True)
+        lines = ["RECEIVABLES (customers who owe us):\n"]
+        total = 0.0
+        for d in debtors:
+            amt = abs(d["balance"])
+            total += amt
+            lines.append(f"  {d['name']}: {_fmt_currency(amt)}")
+        lines.append(f"\nTotal Receivable: {_fmt_currency(total)}")
+        return "\n".join(lines)
+
+    return _live_or_cache("debtors", fetch, format)
+
+
 def main() -> None:
     """Run the MCP server over stdio."""
     mcp.run()
